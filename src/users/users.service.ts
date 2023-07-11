@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -34,8 +34,16 @@ export class UsersService {
     return `This action returns all users`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: string) {
+    if(!mongoose.Types.ObjectId.isValid(id))
+      return "Không tìm thấy user này"
+    try {
+      const user = await this.UserModel.findOne({_id: id});
+    return user;
+    } catch (error) {
+      return "not found"
+    }
+    
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
