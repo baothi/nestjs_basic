@@ -5,6 +5,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Company, CompanyDocument } from './schemas/company.schema';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IUser } from 'src/users/users.interface';
+import aqp from 'api-query-params';
+import { isEmpty } from 'class-validator';
 
 @Injectable()
 export class CompaniesService {
@@ -21,20 +23,64 @@ export class CompaniesService {
       email: user.email
     }});
   }
+  
+  async findAll(currentPage: number, limit: number, qs: string) {
+    const { filter,  sort, projection, population } = aqp(qs);
+    delete filter.page;
+    delete filter.limit;
 
-  findAll() {
-    return `This action returns all companies`;
+    let offset = (+currentPage - 1) * (+limit);
+    let defaultLimit = +limit ? +limit : 10;
+    const totalItems = (await this.companyModel.find(filter)).length;
+    const totalPages = Math.ceil(totalItems / defaultLimit);
+    
+    const result = await this.companyModel.find(filter)
+    .skip(offset)
+    .limit(defaultLimit)
+    .sort(sort as any)
+    .populate(population)
+    .exec();
+
+    return {
+      meta: {
+        current: currentPage, //trang hiện tại
+        pageSize: limit, //số lượng bản ghi đã lấy
+        pages: totalPages, //tổng số trang với điều kiện query
+        total: totalItems // tổng số phần tử (số bản ghi)
+      },
+      result //kết quả query
+      }
   }
 
   findOne(id: number) {
     return `This action returns a #${id} company`;
   }
 
-  update(id: number, updateCompanyDto: UpdateCompanyDto) {
-    return `This action updates a #${id} company`;
+  async update(id: string, updateCompanyDto: UpdateCompanyDto, user: IUser) {
+    return await this.companyModel.updateOne(
+      {_id: id },
+      { ...updateCompanyDto,
+      updatedBy: {
+        _id: user._id,
+        email: user.email
+      }}
+    )
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} company`;
+  async remove(id: string, user: IUser) {
+    await this.companyModel.updateOne(
+      {_id: id },
+      {
+        // isDelete: true, 
+        // deletedAt: new Date(),
+        deletedBy: {
+          _id: user._id,
+          email: user.email
+        } 
+      
+      })
+      return this.companyModel.softDelete({_id: id})
   }
 }
+
+// @ts-ignore: Unreachable code error  ==> tao không muốn ts check code ngay tại dòng này (41 : .sort(sort))
