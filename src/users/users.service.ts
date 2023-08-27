@@ -23,12 +23,41 @@ export class UsersService {
 // Store hash in your password DB.
   }
 
+  // Hàm kiểm tra mật khẩu
+  validatePassword(password: string): string | null {
+    if (password.length < 8) {
+      return 'Mật khẩu phải có ít nhất 8 ký tự';
+    }
+
+    const hasUpperCase = /[A-Z]/.test(password);
+    if (!hasUpperCase) {
+      return 'Mật khẩu phải có ít nhất một chữ cái in hoa';
+    }
+
+    const hasLowerCase = /[a-z]/.test(password);
+    if (!hasLowerCase) {
+      return 'Mật khẩu phải có ít nhất một chữ cái in thường';
+    }
+
+    const hasSpecialCharacter = /[!@#\$%\^&\*]/.test(password);
+    if (!hasSpecialCharacter) {
+      return 'Mật khẩu phải có ít nhất một ký tự đặc biệt';
+    }
+
+    return null;
+  }
+
   async create(createUserDto: CreateUserDto, @User() user: IUser) {
     const { name, email, password, age, gender, address, role, company } = createUserDto
     // add login check email
     const isEcist = await this.UserModel.findOne({ email});
     if (isEcist) {
       throw new BadRequestException(`Email ${email} already exists`);
+    }
+    // Gọi hàm kiểm tra mật khẩu
+    const validationResult = this.validatePassword(password);
+    if (validationResult) {
+      throw new BadRequestException(validationResult);
     }
     const hashPassword = this.getHashpassword(createUserDto.password)
     let newUser = await this.UserModel.create({
@@ -47,6 +76,11 @@ export class UsersService {
     const isEcist = await this.UserModel.findOne({ email});
     if (isEcist) {
       throw new BadRequestException(`Email ${email} already exists`);
+    }
+    // Gọi hàm kiểm tra mật khẩu
+    const validationResult = this.validatePassword(password);
+    if (validationResult) {
+      throw new BadRequestException(validationResult);
     }
     const hashPassword = this.getHashpassword(user.password);
     let newRegister = await this.UserModel.create({
