@@ -59,13 +59,5 @@ export class RegisterUserDto {
 
   @IsNotEmpty({message: "address không được để trống ",})
   address: string;
-
-  @IsNotEmpty({message: "Role không được để trống ",})
-  role: string;
-
-  @IsNotEmptyObject()
-  @IsObject()
-  @ValidateNested()
-  @Type(() => Company)
-  company: Company;
+  
 }

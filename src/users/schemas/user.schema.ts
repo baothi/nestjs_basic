@@ -20,9 +20,8 @@ export class User {
   @Prop()
   gender: string;
 
-
   @Prop()
-  phone: string;
+  phone: number;
 
   @Prop({type: Object})
   company: {

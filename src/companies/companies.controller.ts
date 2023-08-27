@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { CompaniesService } from './companies.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
-import { ResponseMessage, User } from 'src/decorator/customize';
+import { Public, ResponseMessage, User } from 'src/decorator/customize';
 import { IUser } from 'src/users/users.interface';
 
 @Controller('companies')
@@ -15,6 +15,7 @@ export class CompaniesController {
     return this.companiesService.create(createCompanyDto, user);
   }
 
+  @Public()
   @Get()
   @ResponseMessage("Fetch List Company with paginate")
   findAll(
