@@ -76,11 +76,50 @@ export class AuthService {
     return refresh_token;
   };
 
-  processNewToken = (refreshToken: string) => {
+  processNewToken = async (refreshToken: string, response: Response) => {
     try{
       this.jwtService.verify(refreshToken, {
         secret: this.configService.get<string>("JWT_REFRESH_TOKEN_SECRET"),
       })
+      let user = await this.usersService.findUserByToken(refreshToken);
+      if(user) {
+        //update frfresh token
+        const { _id, name, email, role } = user;
+        const payload = {
+          sub: "token refresh",
+          iss: "from server",
+          _id,
+          name,
+          email,
+          role
+        };
+        const refresh_token = this.createRefreshToken(payload);
+        // delete old refresh token
+        response.clearCookie("refresh_token");
+
+        //update user with refresh token
+        await this.usersService.updateUserToken(refresh_token,_id.toString());
+
+        //set refresh token as cookie
+        response.cookie('refresh_token', refresh_token, {
+          httpOnly: true,
+          maxAge: ms(this.configService.get<string>("JWT_REFRESH_EXPIRE")) * 1000
+        })
+
+        return {
+          access_token: this.jwtService.sign(payload),
+          refresh_token,
+          user: {
+            _id,
+            name,
+            email,
+            role
+          }
+      };
+      }else {
+        throw new BadRequestException(`Resfresh token notFound`);
+      }
+      console.log(user);
     }catch(error){
       console.log(error);
       throw new BadRequestException(`Resfresh token ${error}`);
