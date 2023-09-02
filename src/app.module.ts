@@ -21,7 +21,7 @@ import { CompaniesModule } from './companies/companies.module';
           connection.plugin(softDeletePlugin);
           return connection;
           },
-        dbName: "nestj_connect",
+        dbName: "nestjs_connect",
       }),
       inject: [ConfigService],
     }),
