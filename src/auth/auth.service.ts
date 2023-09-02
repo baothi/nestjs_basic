@@ -36,6 +36,8 @@ export class AuthService {
         role
       };
       const refresh_token = this.createRefreshToken(payload);
+      //update user with refresh token
+      await this.usersService.updateUserToken(refresh_token,_id);
       return {
         access_token: this.jwtService.sign(payload),
         refresh_token,
