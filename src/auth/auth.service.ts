@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { RegisterUserDto } from 'src/users/dto/create-user.dto';
@@ -44,7 +44,7 @@ export class AuthService {
       //set refresh token as cookie
       response.cookie('refresh_token', refresh_token, {
         httpOnly: true,
-        maxAge: ms(this.configService.get<string>("JWT_REFRESH_EXPIRE"))
+        maxAge: ms(this.configService.get<string>("JWT_REFRESH_EXPIRE")) * 1000
       })
 
 
@@ -74,5 +74,16 @@ export class AuthService {
       expiresIn: ms(this.configService.get<string>("JWT_REFRESH_EXPIRE"))/1000,
     });
     return refresh_token;
+  };
+
+  processNewToken = (refreshToken: string) => {
+    try{
+      this.jwtService.verify(refreshToken, {
+        secret: this.configService.get<string>("JWT_REFRESH_TOKEN_SECRET"),
+      })
+    }catch(error){
+      console.log(error);
+      throw new BadRequestException(`Resfresh token ${error}`);
+    }
   };
 }

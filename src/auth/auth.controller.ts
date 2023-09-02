@@ -1,9 +1,11 @@
 import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { Public, ResponseMessage } from 'src/decorator/customize';
+import { Public, ResponseMessage, User } from 'src/decorator/customize';
 import { LocalAuthGuard } from './local-auth.guard';
 import { RegisterUserDto } from 'src/users/dto/create-user.dto';
-import { Response } from 'express';
+import { Response, Request } from 'express';
+import { IUser } from 'src/users/users.interface';
+
 
 @Controller("auth")
 export class AuthController {
@@ -45,17 +47,18 @@ export class AuthController {
     return this.authService.register(RegisterUserDto);
   }
 
-  // @UseGuards(JwtAuthGuard)
-  @Get('profile')
-  getProfile(@Req() req) {
-    return req.user;
+  @ResponseMessage("Get user information")
+  @Get('/account')
+  handleGetAccount(@User() user: IUser) {
+    return { user };
   }
   
 
-  
   @Public()
-  @Get('profile1')
-  getProfile1(@Req() req) {
-    return req.user;
+  @ResponseMessage("Get User by refresh token")
+  @Get('/refresh-token')
+  handleRefreshToken(@Req() request: Request) {
+    const refreshToken = request.cookies['refresh_token'];
+    return this.authService.processNewToken(refreshToken);
   }
 }
