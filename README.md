@@ -24,3 +24,16 @@ roles: [ { role: "userAdminAnyDatabase", db: "admin" } ]
 
 
 mongodb://root:123456@localhost:27017/nestjs_connect?authSource=admin
+nest g resource job --no-spec
+
+nest g resource jobs --no-spec
+
+Phương pháp 1: Chạy PowerShell dưới quyền Administrator và thay đổi chính sách thực thi
+Mở PowerShell với quyền Administrator (Run as Administrator).
+Chạy lệnh sau để thay đổi chính sách thực thi:
+powershell
+Copy code
+Set-ExecutionPolicy RemoteSigned
+Khi được hỏi, nhập Y để xác nhận.
+
+nest g resource files --no-spec
