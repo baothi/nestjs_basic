@@ -102,7 +102,7 @@ export class UsersService {
     const totalItems = (await this.UserModel.find(filter)).length
     const totalPages = Math.ceil(totalItems / defaultLimit);
 
-    const results = await this.UserModel.find(filter)
+    const result = await this.UserModel.find(filter)
       .skip(offset)
       .limit(defaultLimit)
       .sort(sort as any)
@@ -116,7 +116,7 @@ export class UsersService {
         pages: totalPages, // tổng số trang với điều kiện query
         total: totalItems // tổng số phần tử (số bản ghi) 
       },
-      results // kết quả query
+      result // kết quả query
     }
   }
 
