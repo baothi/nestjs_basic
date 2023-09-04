@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsNotEmptyObject, IsObject, ValidateNested } from 'class-validator';
+import { IsEmail, IsMongoId, IsNotEmpty, IsNotEmptyObject, IsObject, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import mongoose from 'mongoose';
 
@@ -31,6 +31,7 @@ export class CreateUserDto {
   address: string;
 
   @IsNotEmpty({message: "Role không được để trống ",})
+  @IsMongoId({message: "Role có định dạng là mongo id ",})
   role: string;
 
   @IsNotEmptyObject()

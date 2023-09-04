@@ -11,13 +11,13 @@ export class CreateResumeDto {
     
     @IsNotEmpty({message: "url không được để trống ",})
     url: string;
-  
+
     @IsNotEmpty({message: "Status không được để trống ",})
     status: number;
-  
+
     @IsNotEmpty({message: "CompanyId không được để trống ",})
     companyId: mongoose.Schema.Types.ObjectId;
-  
+
     @IsNotEmpty({message: "JobId không được để trống ",})
     jobId: mongoose.Schema.Types.ObjectId;
 }

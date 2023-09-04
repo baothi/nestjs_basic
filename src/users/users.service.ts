@@ -124,7 +124,9 @@ export class UsersService {
     if(!mongoose.Types.ObjectId.isValid(id))
       return "Không tìm thấy user này"
     try {
-      const user = await this.UserModel.findOne({_id: id}).select("-password"); // dùng dấu - chỗ password có nghĩa là excule >< include
+      const user = (await this.UserModel.findOne({_id: id})
+      .select("-password"))    // dùng dấu - chỗ password có nghĩa là excule >< include
+      .populate({path: "role", select: {name: 1, _id: 1}}); 
     return user;
     } catch (error) {
       return "not found"
@@ -137,7 +139,7 @@ export class UsersService {
   }
   
   async findOneByUsername(username: string) {
-    return await this.UserModel.findOne({email: username});
+    return (await this.UserModel.findOne({email: username})).populate({path: "role", select: {name: 1, permissions: 1}});
   }
 
 
@@ -156,6 +158,11 @@ export class UsersService {
   async remove(id: string, user: IUser) {
     if(!mongoose.Types.ObjectId.isValid(id))
       return "Không tìm thấy user này"
+
+    const foundUser = await this.UserModel.findById(id);
+    if(foundUser.email === "admin@gmail.com"){
+      throw new BadRequestException("Không thể xóa admin");
+    }
     await this.UserModel.updateOne({_id: id },{
       deletedBy: {
         _id: user._id,

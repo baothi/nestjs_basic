@@ -76,6 +76,17 @@ export class ResumesService {
 
   async findByUsers(user: IUser){
     return await this.resumeModel.find({userId: user._id})
+      .sort("-createdAt")
+      .populate([
+        {
+          path: 'companyId',
+          select: {name: 1}
+        },
+        {
+          path: 'jobId',
+          select: {name: 1}
+        }
+      ])
   }
 
   async update(_id: string, status: string, user: IUser) {
