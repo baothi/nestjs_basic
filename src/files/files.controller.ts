@@ -11,12 +11,12 @@ export class FilesController {
 
   @Post('upload')
   @ResponseMessage("Uploaded file successfully")
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('fileUpload'))
   uploadFile(@UploadedFile(
     new ParseFilePipeBuilder()
     .addFileTypeValidator({
       // https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
-      fileType: /^(jpg|jpeg|png|image\/png|gif|bmp|pdf|application\/pdf|doc|docx|txt|text\/plain|mp3|wav|mp4|video\/mp4|avi|video\/x-msvideo)$/i,
+      fileType: /^(jpg|jpeg|image\/jpeg|png|image\/png|gif|bmp|pdf|application\/pdf|doc|docx|txt|text\/plain|mp3|wav|mp4|video\/mp4|avi|video\/x-msvideo)$/i,
     })
     .addMaxSizeValidator({
       maxSize: 1024 * 1024 //kb = 1 MB
