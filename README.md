@@ -37,3 +37,7 @@ Set-ExecutionPolicy RemoteSigned
 Khi được hỏi, nhập Y để xác nhận.
 
 nest g resource files --no-spec
+
+npx eslint --fix .
+
+npx eslint '**/*.ts' --fix

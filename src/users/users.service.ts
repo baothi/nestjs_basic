@@ -9,11 +9,15 @@ import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IUser } from './users.interface';
 import { User } from 'src/decorator/customize';
 import aqp from 'api-query-params';
+import { Role as RoleM, RoleDocument } from 'src/roles/schemas/role.schemas'; // Import Role model
 
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(UserM.name) private UserModel: SoftDeleteModel<UserDocument>) {}
+  constructor(
+    @InjectModel(UserM.name) private UserModel: SoftDeleteModel<UserDocument>,
+    @InjectModel(RoleM.name) private RoleModel: SoftDeleteModel<RoleDocument> // Inject Role model
+  ) {}
 
   getHashpassword = (password:string) => {
     // var bcrypt = require('bcryptjs');
@@ -71,6 +75,7 @@ export class UsersService {
   }
 
   async register(user: RegisterUserDto) {
+    console.log("Register :", user);
     const { name, email, password, age, gender, address } = user;
     // add login check email
     const isEcist = await this.UserModel.findOne({ email});
@@ -83,6 +88,13 @@ export class UsersService {
       throw new BadRequestException(validationResult);
     }
     const hashPassword = this.getHashpassword(user.password);
+
+    // Find the role document (assumes 'user' role exists in your Role collection)
+    const userRole = await this.RoleModel.findOne({ name: 'user' });
+    if (!userRole) {
+      throw new BadRequestException('Role "user" does not exist');
+    }
+
     let newRegister = await this.UserModel.create({
       name, email, password: hashPassword, 
       age, gender, address,
@@ -139,7 +151,9 @@ export class UsersService {
   }
   
   async findOneByUsername(username: string) {
-    return (await this.UserModel.findOne({email: username})).populate({path: "role", select: {name: 1, permissions: 1}});
+    return (await this.UserModel.findOne({
+      email: username
+    })).populate({path: "role", select: {name: 1, permissions: 1}});
   }
 
 

@@ -8,6 +8,7 @@ import { IUser } from 'src/users/users.interface';
 @Controller('roles')
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
+  
 
   @Post()
   @ResponseMessage("Create a new Role")
@@ -16,7 +17,7 @@ export class RolesController {
   }
 
   @Get()
-  @ResponseMessage("Fetch all resume with permissions")
+  @ResponseMessage("Fetch all roles with paginate")
   findAll(
     @Query("current") currentPage: string,
     @Query("pageSize") limit: string,
@@ -26,13 +27,13 @@ export class RolesController {
   }
 
   @Get(':id')
-  @ResponseMessage("Fetch a role")
+  @ResponseMessage("Fetch a role by id")
   findOne(@Param('id') id: string) {
     return this.rolesService.findOne(id);
   }
 
   @Patch(':id')
-  @ResponseMessage("Update a permission")
+  @ResponseMessage("Update a role")
   update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto, @User() user: IUser) {
     return this.rolesService.update(id, updateRoleDto, user);
   }
