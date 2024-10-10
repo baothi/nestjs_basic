@@ -10,6 +10,7 @@ import { IUser } from './users.interface';
 import { User } from 'src/decorator/customize';
 import aqp from 'api-query-params';
 import { Role as RoleM, RoleDocument } from 'src/roles/schemas/role.schemas'; // Import Role model
+import { USER_ROLE } from 'src/databases/sample';
 
 
 @Injectable()
@@ -75,7 +76,6 @@ export class UsersService {
   }
 
   async register(user: RegisterUserDto) {
-    console.log("Register :", user);
     const { name, email, password, age, gender, address } = user;
     // add login check email
     const isEcist = await this.UserModel.findOne({ email});
@@ -90,7 +90,7 @@ export class UsersService {
     const hashPassword = this.getHashpassword(user.password);
 
     // Find the role document (assumes 'user' role exists in your Role collection)
-    const userRole = await this.RoleModel.findOne({ name: 'user' });
+    const userRole = await this.RoleModel.findOne({ name: USER_ROLE });
     if (!userRole) {
       throw new BadRequestException('Role "user" does not exist');
     }
@@ -98,7 +98,7 @@ export class UsersService {
     let newRegister = await this.UserModel.create({
       name, email, password: hashPassword, 
       age, gender, address,
-      role: 'user'
+      role: userRole?._id
     });
     return newRegister;
   }
@@ -153,20 +153,23 @@ export class UsersService {
   async findOneByUsername(username: string) {
     return (await this.UserModel.findOne({
       email: username
-    })).populate({path: "role", select: {name: 1, permissions: 1}});
+    })).populate({path: "role", select: {name: 1}});
   }
 
 
 
   async update(updateUserDto: UpdateUserDto, user: IUser) {
-    return await this.UserModel.updateOne(
-      {_id: updateUserDto._id},
-      {...updateUserDto,
+
+    const updated = await this.UserModel.updateOne(
+      { _id: updateUserDto._id },
+      {
+        ...updateUserDto,
         updatedBy: {
           _id: user._id,
           email: user.email
-        }}
-      );
+        }
+      });
+    return updated;
   }
 
   async remove(id: string, user: IUser) {
@@ -194,6 +197,10 @@ export class UsersService {
   };
 
   findUserByToken = async (refreshToken: string) => {
-    return await this.UserModel.findOne({refreshToken})
-  };
+    return await this.UserModel.findOne({ refreshToken })
+      .populate({
+        path: "role",
+        select: { name: 1 }
+      });
+  }
 }

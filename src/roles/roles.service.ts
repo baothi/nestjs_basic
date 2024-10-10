@@ -16,13 +16,13 @@ export class RolesService {
   ){}
 
   async create(createRoleDto: CreateRoleDto, user: IUser) {
-    const { name, description, isActive, permission } = createRoleDto;
+    const { name, description, isActive, permissions } = createRoleDto;
     const isExist = await this.RoleModel.findOne({ name });
     if (isExist) {
       throw new BadRequestException(`Role với name="${name}" is already`);
     }
     const newRole = await this.RoleModel.create({
-      name, description, isActive, permission,
+      name, description, isActive, permissions,
       createdBy: {
         _id: user._id,
         email: user.email,
@@ -79,7 +79,7 @@ export class RolesService {
       throw new BadRequestException('Invalid resume id')
     }
 
-    const { name, description, isActive, permission } = updateRoleDto;
+    const { name, description, isActive, permissions } = updateRoleDto;
     // const isExist = await this.RoleModel.findOne({ name });
     // if (isExist) {
     //   throw new BadRequestException(`Role với name="${name}" is already`);
@@ -88,7 +88,7 @@ export class RolesService {
     const updated = await this.RoleModel.updateOne(
       { _id },
       {
-        name, description, isActive, permission,
+        name, description, isActive, permissions,
         updatedBy: {
           _id: user._id,
           email: user.email,
