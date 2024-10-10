@@ -95,20 +95,26 @@ export class AuthService {
       let user = await this.usersService.findUserByToken(refreshToken);
       if(user) {
         //update frfresh token
-        const { _id, name, email } = user;
+        const { _id, name, email, role } = user;
         const payload = {
           sub: "token refresh",
           iss: "from server",
           _id,
           name,
-          email
+          email,
+          role
         };
         const refresh_token = this.createRefreshToken(payload);
-        // delete old refresh token
-        response.clearCookie("refresh_token");
 
         //update user with refresh token
         await this.usersService.updateUserToken(refresh_token,_id.toString());
+
+        //fetch user's role
+        const userRole = user.role as unknown as { _id: string; name: string }
+        const temp = await this.rolesService.findOne(userRole._id)
+
+        //set refresh_token as cookies
+        response.clearCookie("refresh_token");
 
         //set refresh token as cookie
         response.cookie('refresh_token', refresh_token, {
@@ -122,7 +128,9 @@ export class AuthService {
           user: {
             _id,
             name,
-            email
+            email,
+            role,
+            permissions: temp?.permissions ?? []
           }
       };
       }else {
