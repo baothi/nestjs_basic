@@ -15,12 +15,15 @@ import { RolesModule } from './roles/roles.module';
 import { DatabasesModule } from './databases/databases.module';
 import { SubscribersModule } from './subscribers/subscribers.module';
 import { MailModule } from './mail/mail.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
     // MongooseModule.forRoot("mongodb://root:123456@localhost:27018/?authMechanism=DEFAULT", {
     //   dbName: "nestj_connect",
     // }),
+    // https://docs.nestjs.com/techniques/task-scheduling
+    ScheduleModule.forRoot(),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
