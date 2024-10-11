@@ -177,7 +177,7 @@ export class UsersService {
       return "Không tìm thấy user này"
 
     const foundUser = await this.UserModel.findById(id);
-    if(foundUser.email === "admin@gmail.com"){
+    if(foundUser && foundUser.email === "admin@gmail.com"){
       throw new BadRequestException("Không thể xóa admin");
     }
     await this.UserModel.updateOne({_id: id },{

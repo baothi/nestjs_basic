@@ -9,7 +9,7 @@ import { IUser } from './users.interface';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
   
-  @Public()
+
   @Post()
   @ResponseMessage("Create a new user")
   async create( @Body() createUserDto: CreateUserDto, @User() user: IUser) {
