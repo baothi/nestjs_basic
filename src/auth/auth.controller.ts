@@ -6,6 +6,7 @@ import { RegisterUserDto } from 'src/users/dto/create-user.dto';
 import { Response, Request } from 'express';
 import { IUser } from 'src/users/users.interface';
 import { RolesService } from 'src/roles/roles.service';
+import { ThrottlerGuard, Throttle } from '@nestjs/throttler';
 
 
 @Controller("auth")
@@ -33,12 +34,14 @@ export class AuthController {
   
   @Public()
   @UseGuards(LocalAuthGuard)
+  @UseGuards(ThrottlerGuard)
   @ResponseMessage("User is logged in successfully")
   @Post('/login')
   handleLogin(
     @Req() req,
     @Res({passthrough: true}) response: Response
     ) {
+    console.log("user is logged in successfully")
     return this.authService.login(req.user, response);
   }
   
