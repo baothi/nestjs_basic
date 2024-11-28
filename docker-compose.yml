@@ -27,3 +27,24 @@ services:
     restart: unless-stopped
     ports:
       - "${WEB_MONGODB_PORT}:8081"
+  
+  be-nest:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # restart: unless-stopped
+    environment:
+      - PORT=8080
+      - NODE_ENV=production
+      # - MONGO_DB_HOST=mongodb://root:123456@localhost:27017/?authMechanism=DEFAULT
+      - MONGO_DB_HOST=mongodb://${MONGO_DB_ROOT_USERNAME}:${MONGO_DB_ROOT_PASSWORD}@mongo:27017/?authMechanism=DEFAULT
+      # - DB_HOST=host.docker.internal
+    expose:
+      - 8080
+    ports:
+      - 8080:8080
+    depends_on:
+      - mongo
+
+volumes:
+  mongodb:
